@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as UsersRouteImport } from './routes/users'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ApiWithLoggerRouteImport } from './routes/api.with-logger'
@@ -17,7 +18,13 @@ import { Route as ApiSlackRouteImport } from './routes/api.slack'
 import { Route as ApiPureRouteImport } from './routes/api.pure'
 import { Route as ApiHealthRouteImport } from './routes/api.health'
 import { Route as ApiDataRouteImport } from './routes/api.data'
+import { Route as ApiTrpcSplatRouteImport } from './routes/api.trpc.$'
 
+const UsersRoute = UsersRouteImport.update({
+  id: '/users',
+  path: '/users',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AboutRoute = AboutRouteImport.update({
   id: '/about',
   path: '/about',
@@ -58,84 +65,110 @@ const ApiDataRoute = ApiDataRouteImport.update({
   path: '/api/data',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiTrpcSplatRoute = ApiTrpcSplatRouteImport.update({
+  id: '/api/trpc/$',
+  path: '/api/trpc/$',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/users': typeof UsersRoute
   '/api/data': typeof ApiDataRoute
   '/api/health': typeof ApiHealthRoute
   '/api/pure': typeof ApiPureRoute
   '/api/slack': typeof ApiSlackRoute
   '/api/test-handlers': typeof ApiTestHandlersRoute
   '/api/with-logger': typeof ApiWithLoggerRoute
+  '/api/trpc/$': typeof ApiTrpcSplatRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/users': typeof UsersRoute
   '/api/data': typeof ApiDataRoute
   '/api/health': typeof ApiHealthRoute
   '/api/pure': typeof ApiPureRoute
   '/api/slack': typeof ApiSlackRoute
   '/api/test-handlers': typeof ApiTestHandlersRoute
   '/api/with-logger': typeof ApiWithLoggerRoute
+  '/api/trpc/$': typeof ApiTrpcSplatRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/users': typeof UsersRoute
   '/api/data': typeof ApiDataRoute
   '/api/health': typeof ApiHealthRoute
   '/api/pure': typeof ApiPureRoute
   '/api/slack': typeof ApiSlackRoute
   '/api/test-handlers': typeof ApiTestHandlersRoute
   '/api/with-logger': typeof ApiWithLoggerRoute
+  '/api/trpc/$': typeof ApiTrpcSplatRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
     | '/about'
+    | '/users'
     | '/api/data'
     | '/api/health'
     | '/api/pure'
     | '/api/slack'
     | '/api/test-handlers'
     | '/api/with-logger'
+    | '/api/trpc/$'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/about'
+    | '/users'
     | '/api/data'
     | '/api/health'
     | '/api/pure'
     | '/api/slack'
     | '/api/test-handlers'
     | '/api/with-logger'
+    | '/api/trpc/$'
   id:
     | '__root__'
     | '/'
     | '/about'
+    | '/users'
     | '/api/data'
     | '/api/health'
     | '/api/pure'
     | '/api/slack'
     | '/api/test-handlers'
     | '/api/with-logger'
+    | '/api/trpc/$'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AboutRoute: typeof AboutRoute
+  UsersRoute: typeof UsersRoute
   ApiDataRoute: typeof ApiDataRoute
   ApiHealthRoute: typeof ApiHealthRoute
   ApiPureRoute: typeof ApiPureRoute
   ApiSlackRoute: typeof ApiSlackRoute
   ApiTestHandlersRoute: typeof ApiTestHandlersRoute
   ApiWithLoggerRoute: typeof ApiWithLoggerRoute
+  ApiTrpcSplatRoute: typeof ApiTrpcSplatRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/users': {
+      id: '/users'
+      path: '/users'
+      fullPath: '/users'
+      preLoaderRoute: typeof UsersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/about': {
       id: '/about'
       path: '/about'
@@ -192,18 +225,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiDataRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/trpc/$': {
+      id: '/api/trpc/$'
+      path: '/api/trpc/$'
+      fullPath: '/api/trpc/$'
+      preLoaderRoute: typeof ApiTrpcSplatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AboutRoute: AboutRoute,
+  UsersRoute: UsersRoute,
   ApiDataRoute: ApiDataRoute,
   ApiHealthRoute: ApiHealthRoute,
   ApiPureRoute: ApiPureRoute,
   ApiSlackRoute: ApiSlackRoute,
   ApiTestHandlersRoute: ApiTestHandlersRoute,
   ApiWithLoggerRoute: ApiWithLoggerRoute,
+  ApiTrpcSplatRoute: ApiTrpcSplatRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

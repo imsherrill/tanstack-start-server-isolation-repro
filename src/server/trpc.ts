@@ -4,6 +4,7 @@ import tracer from "dd-trace";
 import { Queue } from "bullmq";
 import { PrismaClient } from "@prisma/client";
 import { z } from "zod";
+import { db } from "./db";
 
 // Server-only imports at top level
 const redis = typeof Redis === "function" ? "Redis available" : "Redis not available";
@@ -27,6 +28,21 @@ export const appRouter = t.router({
   echo: t.procedure.input(z.string()).query(({ input }) => {
     return `Echo: ${input}`;
   }),
+  getUsers: t.procedure.query(async () => {
+    const users = await db.user.findMany({
+      orderBy: { createdAt: "desc" },
+      take: 10,
+    });
+    return users;
+  }),
+  createUser: t.procedure
+    .input(z.object({ email: z.string().email(), name: z.string().optional() }))
+    .mutation(async ({ input }) => {
+      const user = await db.user.create({
+        data: input,
+      });
+      return user;
+    }),
 });
 
 export type AppRouter = typeof appRouter;

@@ -6,11 +6,16 @@
   "scripts": {
     "dev": "vite dev --port 3000",
     "build": "vite build",
-    "start": "vite start"
+    "start": "vite start",
+    "test": "playwright test",
+    "test:ui": "playwright test --ui",
+    "db:push": "prisma db push",
+    "db:generate": "prisma generate"
   },
   "dependencies": {
     "@azure/msal-node": "^5.0.2",
     "@openfeature/core": "^1.9.1",
+    "@prisma/adapter-pg": "^7.2.0",
     "@prisma/client": "^7.2.0",
     "@slack/web-api": "^7.13.0",
     "@tanstack/react-query": "^5.90.19",
@@ -21,14 +26,17 @@
     "@trpc/server": "^11.8.1",
     "bullmq": "^5.66.5",
     "dd-trace": "^5.82.0",
+    "dotenv": "^17.2.3",
     "graceful-fs": "^4.2.11",
     "ioredis": "^5.9.2",
+    "pg": "^8.17.1",
     "prisma": "^7.2.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "zod": "^4.3.5"
   },
   "devDependencies": {
+    "@playwright/test": "^1.57.0",
     "@tanstack/router-plugin": "1.146.0",
     "@types/node": "^22.15.21",
     "@types/react": "^18.3.23",
