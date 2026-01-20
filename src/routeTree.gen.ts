@@ -9,9 +9,22 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as UsersBrokenRouteImport } from './routes/users-broken'
+import { Route as UsersRouteImport } from './routes/users'
 import { Route as StaticImportTestRouteImport } from './routes/static-import-test'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ApiUsersRouteImport } from './routes/api.users'
 
+const UsersBrokenRoute = UsersBrokenRouteImport.update({
+  id: '/users-broken',
+  path: '/users-broken',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const UsersRoute = UsersRouteImport.update({
+  id: '/users',
+  path: '/users',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const StaticImportTestRoute = StaticImportTestRouteImport.update({
   id: '/static-import-test',
   path: '/static-import-test',
@@ -22,35 +35,77 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiUsersRoute = ApiUsersRouteImport.update({
+  id: '/api/users',
+  path: '/api/users',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/static-import-test': typeof StaticImportTestRoute
+  '/users': typeof UsersRoute
+  '/users-broken': typeof UsersBrokenRoute
+  '/api/users': typeof ApiUsersRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/static-import-test': typeof StaticImportTestRoute
+  '/users': typeof UsersRoute
+  '/users-broken': typeof UsersBrokenRoute
+  '/api/users': typeof ApiUsersRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/static-import-test': typeof StaticImportTestRoute
+  '/users': typeof UsersRoute
+  '/users-broken': typeof UsersBrokenRoute
+  '/api/users': typeof ApiUsersRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/static-import-test'
+  fullPaths:
+    | '/'
+    | '/static-import-test'
+    | '/users'
+    | '/users-broken'
+    | '/api/users'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/static-import-test'
-  id: '__root__' | '/' | '/static-import-test'
+  to: '/' | '/static-import-test' | '/users' | '/users-broken' | '/api/users'
+  id:
+    | '__root__'
+    | '/'
+    | '/static-import-test'
+    | '/users'
+    | '/users-broken'
+    | '/api/users'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   StaticImportTestRoute: typeof StaticImportTestRoute
+  UsersRoute: typeof UsersRoute
+  UsersBrokenRoute: typeof UsersBrokenRoute
+  ApiUsersRoute: typeof ApiUsersRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/users-broken': {
+      id: '/users-broken'
+      path: '/users-broken'
+      fullPath: '/users-broken'
+      preLoaderRoute: typeof UsersBrokenRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/users': {
+      id: '/users'
+      path: '/users'
+      fullPath: '/users'
+      preLoaderRoute: typeof UsersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/static-import-test': {
       id: '/static-import-test'
       path: '/static-import-test'
@@ -65,12 +120,22 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/users': {
+      id: '/api/users'
+      path: '/api/users'
+      fullPath: '/api/users'
+      preLoaderRoute: typeof ApiUsersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   StaticImportTestRoute: StaticImportTestRoute,
+  UsersRoute: UsersRoute,
+  UsersBrokenRoute: UsersBrokenRoute,
+  ApiUsersRoute: ApiUsersRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

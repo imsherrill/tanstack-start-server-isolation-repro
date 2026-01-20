@@ -1,80 +1,97 @@
-# TanStack Start - Static Imports Are Safe
+# TanStack Start - Server Code Isolation
 
-This repo proves that **static imports ARE safe** when using `createServerFn`, as documented in the [TanStack Start docs](https://tanstack.com/start/latest/docs/framework/react/guide/server-functions#static-imports-are-safe).
+This repo tests which patterns safely isolate server code from the client bundle.
 
 ## Test Case
 
-A realistic production pattern: Prisma client with an extension that queues BullMQ jobs on mutations.
+Prisma client with an extension that queues BullMQ jobs on mutations.
 
 ### Import Chain
 
 ```
-src/routes/static-import-test.tsx (client component)
-  → src/server/jobs.ts (server functions via createServerFn)
-    → src/server/db.ts (Prisma client)
-      → src/server/extensions/queue-on-mutation.ts (Prisma extension)
-        → bullmq
-          → events, fs, worker_threads (Node.js built-ins)
+route file
+  → db.ts (Prisma client)
+    → queue-on-mutation.ts (Prisma extension)
+      → bullmq
+        → events, fs, worker_threads (Node.js built-ins)
 ```
 
-### Files
+## Results
 
-- `src/server/extensions/queue-on-mutation.ts` - Prisma extension with **static** BullMQ import at top level
-- `src/server/db.ts` - Prisma client extended with the queue extension
-- `src/server/jobs.ts` - Server functions using `createServerFn` that import db
-- `src/routes/static-import-test.tsx` - Client component importing server functions
+| Pattern | Build Result | Notes |
+|---------|-------------|-------|
+| `createServerFn` | ✅ Succeeds | Server code properly stripped |
+| `server.handlers` | ✅ Succeeds | Server code properly stripped |
+| `loader` (no createServerFn) | ❌ **Fails** | Server imports leak to client |
 
-## Build Test
-
-```bash
-npm install
-npm run build
-```
-
-### Result: ✅ Build Succeeds
-
-```
-vite v7.3.1 building client environment for production...
-✓ 152 modules transformed.
-dist/client/assets/static-import-test-AKyKUMw-.js    5.36 kB
-✓ built in 660ms
-```
-
-BullMQ and its Node.js dependencies are **NOT** included in the client bundle.
-
-## Key Insight
-
-The `createServerFn` wrapper is what makes static imports safe. It marks the code path as server-only, allowing the bundler to strip it from the client build.
-
-### Safe Pattern ✅
+## The Problem: `loader` without `createServerFn`
 
 ```typescript
-// server/jobs.ts
-import { createServerFn } from "@tanstack/react-start";
-import { db } from "./db"; // Static import - this is safe!
+// ❌ BROKEN - loader runs on client during navigation
+import { db } from "../server/db";
 
-export const createUser = createServerFn({ method: "POST" }).handler(async () => {
-  return db.user.create({ data: { email: "test@example.com" } });
+export const Route = createFileRoute("/users")({
+  loader: async () => {
+    const users = await db.user.findMany();  // This leaks to client!
+    return { users };
+  },
 });
 ```
 
-```typescript
-// routes/page.tsx (client)
-import { createUser } from "../server/jobs"; // Safe - importing server function
+Build fails with:
+```
+"EventEmitter" is not exported by "__vite-browser-external"
 ```
 
-### Unsafe Pattern ❌
+## Safe Patterns
+
+### 1. Use `createServerFn` for loaders
 
 ```typescript
-// shared/context.tsx
-import { db } from "../server/db"; // Direct import without createServerFn
+// ✅ SAFE - createServerFn isolates server code
+import { createServerFn } from "@tanstack/react-start";
+import { db } from "../server/db";
 
-export function DataProvider({ children }) {
-  // Using db directly in client code - this will fail!
-  const users = db.user.findMany();
-}
+const getUsers = createServerFn({ method: "GET" }).handler(async () => {
+  return db.user.findMany();
+});
+
+export const Route = createFileRoute("/users")({
+  loader: () => getUsers(),
+});
 ```
 
-## Conclusion
+### 2. `server.handlers` is already safe
 
-The TanStack Start documentation is correct: **static imports are safe** when you use `createServerFn`. The build process properly strips server-only code from the client bundle, even with deep import chains involving Node.js-only dependencies like BullMQ.
+```typescript
+// ✅ SAFE - server.handlers are server-only
+import { db } from "../server/db";
+
+export const Route = createFileRoute("/api/users")({
+  server: {
+    handlers: {
+      GET: async () => {
+        const users = await db.user.findMany();
+        return json(users);
+      },
+    },
+  },
+});
+```
+
+## Reproduce
+
+```bash
+npm install
+npm run build  # Fails due to users-broken.tsx
+```
+
+Remove `users-broken.tsx` and build succeeds.
+
+## Files
+
+- `src/routes/users-broken.tsx` - Demonstrates the broken pattern (loader with static import)
+- `src/routes/static-import-test.tsx` - Safe pattern using createServerFn
+- `src/server/extensions/queue-on-mutation.ts` - Prisma extension with BullMQ
+- `src/server/db.ts` - Prisma client with extension
+- `src/server/jobs.ts` - Server functions using createServerFn
