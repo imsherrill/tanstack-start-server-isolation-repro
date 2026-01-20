@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "vite dev --port 3000",
+    "dev": "vite dev --port 3002",
     "build": "vite build",
     "start": "vite start",
     "test": "playwright test",
@@ -14,7 +14,7 @@
     "docker:up": "docker compose up -d",
     "docker:down": "docker compose down",
     "setup": "docker compose up -d && prisma db push && prisma generate",
-    "dev:full": "docker compose up -d && vite dev --port 3000"
+    "dev:full": "docker compose up -d && vite dev --port 3002"
   },
   "dependencies": {
     "@azure/msal-node": "^5.0.2",
