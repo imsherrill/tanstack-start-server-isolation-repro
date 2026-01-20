@@ -10,7 +10,11 @@
     "test": "playwright test",
     "test:ui": "playwright test --ui",
     "db:push": "prisma db push",
-    "db:generate": "prisma generate"
+    "db:generate": "prisma generate",
+    "docker:up": "docker compose up -d",
+    "docker:down": "docker compose down",
+    "setup": "docker compose up -d && prisma db push && prisma generate",
+    "dev:full": "docker compose up -d && vite dev --port 3000"
   },
   "dependencies": {
     "@azure/msal-node": "^5.0.2",
