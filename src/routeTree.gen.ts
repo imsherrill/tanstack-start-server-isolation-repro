@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as UsersRouteImport } from './routes/users'
+import { Route as ImportChainTestRouteImport } from './routes/import-chain-test'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ApiWithLoggerRouteImport } from './routes/api.with-logger'
@@ -23,6 +24,11 @@ import { Route as ApiTrpcSplatRouteImport } from './routes/api.trpc.$'
 const UsersRoute = UsersRouteImport.update({
   id: '/users',
   path: '/users',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ImportChainTestRoute = ImportChainTestRouteImport.update({
+  id: '/import-chain-test',
+  path: '/import-chain-test',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AboutRoute = AboutRouteImport.update({
@@ -74,6 +80,7 @@ const ApiTrpcSplatRoute = ApiTrpcSplatRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/import-chain-test': typeof ImportChainTestRoute
   '/users': typeof UsersRoute
   '/api/data': typeof ApiDataRoute
   '/api/health': typeof ApiHealthRoute
@@ -86,6 +93,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/import-chain-test': typeof ImportChainTestRoute
   '/users': typeof UsersRoute
   '/api/data': typeof ApiDataRoute
   '/api/health': typeof ApiHealthRoute
@@ -99,6 +107,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/import-chain-test': typeof ImportChainTestRoute
   '/users': typeof UsersRoute
   '/api/data': typeof ApiDataRoute
   '/api/health': typeof ApiHealthRoute
@@ -113,6 +122,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/about'
+    | '/import-chain-test'
     | '/users'
     | '/api/data'
     | '/api/health'
@@ -125,6 +135,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/about'
+    | '/import-chain-test'
     | '/users'
     | '/api/data'
     | '/api/health'
@@ -137,6 +148,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/about'
+    | '/import-chain-test'
     | '/users'
     | '/api/data'
     | '/api/health'
@@ -150,6 +162,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AboutRoute: typeof AboutRoute
+  ImportChainTestRoute: typeof ImportChainTestRoute
   UsersRoute: typeof UsersRoute
   ApiDataRoute: typeof ApiDataRoute
   ApiHealthRoute: typeof ApiHealthRoute
@@ -167,6 +180,13 @@ declare module '@tanstack/react-router' {
       path: '/users'
       fullPath: '/users'
       preLoaderRoute: typeof UsersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/import-chain-test': {
+      id: '/import-chain-test'
+      path: '/import-chain-test'
+      fullPath: '/import-chain-test'
+      preLoaderRoute: typeof ImportChainTestRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/about': {
@@ -238,6 +258,7 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AboutRoute: AboutRoute,
+  ImportChainTestRoute: ImportChainTestRoute,
   UsersRoute: UsersRoute,
   ApiDataRoute: ApiDataRoute,
   ApiHealthRoute: ApiHealthRoute,
